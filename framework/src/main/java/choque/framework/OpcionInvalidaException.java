@@ -9,4 +9,8 @@ public class OpcionInvalidaException extends Exception {
 	public OpcionInvalidaException(Object seleccion) {
 		super("Opcion invalida: " + seleccion.toString());
 	}
+
+	public OpcionInvalidaException(String mensaje) {
+		super(mensaje);
+	}
 }

@@ -2,7 +2,7 @@ package choque.framework;
 
 import java.util.*;
 
-class MenuAcciones {
+abstract class MenuAcciones {
 
 	// Colección de los items del menú.
 	private final Map<String, Accion> items;
@@ -34,8 +34,8 @@ class MenuAcciones {
 		return Arrays.stream(objChars).allMatch(Character::isLetterOrDigit);
 	}
 
-	Accion seleccionar(String id) {
-		return items.get(id);
+	Optional<Accion> getItem(String id) {
+		return Optional.ofNullable(items.get(id));
 	}
 
 	List<String> verOrdenItems() {
@@ -49,6 +49,27 @@ class MenuAcciones {
 	void reordenar(List<String> ids) {
 		List<String> resto = ordenIDs.stream().dropWhile(ids::contains).toList();
 		ordenIDs.removeAll(resto);
+		// TODO: implementar el reordenado.
 		ordenIDs.addAll(resto);
 	}
+
+	abstract void mostrarMenu(List<String> items);
+
+	void mostrarMenu() {
+		mostrarMenu(verOrdenItems());
+	}
+
+	public Accion elegirDelMenu(boolean mostrarMenu) throws OpcionInvalidaException {
+		if (mostrarMenu) this.mostrarMenu();
+		String input = getInputParaMenu();
+
+		// Parsing del input
+		String id = input.trim();
+		if (!validarId(id))
+			throw new OpcionInvalidaException("Id inválido");
+		return this.getItem(id)
+				.orElseThrow(() -> new OpcionInvalidaException((Object) id));
+	}
+
+	abstract String getInputParaMenu();
 }
