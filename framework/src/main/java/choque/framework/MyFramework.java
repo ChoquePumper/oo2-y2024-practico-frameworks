@@ -1,5 +1,6 @@
 package choque.framework;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,9 +10,9 @@ import java.util.*;
 public class MyFramework {
 	public static final String defaultRutaArchivoPropiedades = "config.properties";
 	private static final String propname_acciones = "acciones";
+	private final File archivoConfiguracion;
 
 	private List<String> nombreclase_acciones;
-	private final String rutaArchivoPropiedades;
 
 	private MenuAcciones menuAcciones;
 	private boolean salirDelPrograma;
@@ -24,8 +25,11 @@ public class MyFramework {
 	}
 
 	public MyFramework(String rutaArchivoPropiedades) {
-		Objects.requireNonNull(rutaArchivoPropiedades);
-		this.rutaArchivoPropiedades = rutaArchivoPropiedades;
+		this(new File(rutaArchivoPropiedades));
+	}
+
+	public MyFramework(File archivoConfiguracion) {
+		this.archivoConfiguracion = Objects.requireNonNull(archivoConfiguracion);
 
 		// Crear una Accion para salir del programa: clase anónima.
 		this.salirDelPrograma = false;
@@ -57,10 +61,10 @@ public class MyFramework {
 	private void procesarConfiguracion() {
 		// Abrir y leer el archivo de configuración
 		Properties config = new Properties();
-		try (var f_reader = new FileReader(rutaArchivoPropiedades)) {
+		try (var f_reader = new FileReader(archivoConfiguracion)) {
 			config.load(f_reader);
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException("No se encontró el archivo de configuración: " + rutaArchivoPropiedades);
+			throw new RuntimeException("No se encontró el archivo de configuración: " + archivoConfiguracion.getName());
 		} catch (IOException e) {
 			throw new RuntimeException("Error al leer el archivo del configuración.", e);
 		}
