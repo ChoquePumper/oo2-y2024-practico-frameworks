@@ -99,7 +99,7 @@ public class MyFramework {
 			// Se usará el constructor por defecto: sin parámetros.
 			return clase.getDeclaredConstructor().newInstance();
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-				 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+		         | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException("No se pudo crear una instancia de '" + nombreclase + "'", e);
 		}
 	}
