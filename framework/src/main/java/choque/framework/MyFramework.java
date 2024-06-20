@@ -123,6 +123,7 @@ public class MyFramework {
 	}
 
 	private void mostrarMenu() {
+		System.out.println();
 		System.out.println("Bienvenido, estas son sus opciones:\n");
 		this.menuAcciones.mostrarMenu();
 	}
