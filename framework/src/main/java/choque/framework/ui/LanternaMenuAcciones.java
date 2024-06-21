@@ -56,4 +56,13 @@ public class LanternaMenuAcciones extends MenuAcciones {
 	public String getInputParaMenu() {
 		return opcionSeleccionada;
 	}
+
+	@Override
+	public void cerrar() {
+		try {
+			textGUI.getScreen().close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
