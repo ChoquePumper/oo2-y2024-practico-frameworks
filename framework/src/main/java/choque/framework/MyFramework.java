@@ -146,7 +146,7 @@ public class MyFramework {
 		}
 
 		@Override
-		void mostrarMenu(List<String> items) {
+		public void mostrarMenu(List<String> items) {
 			for (String idItem : items) {
 				Accion accion = getItem(idItem).orElseThrow();
 				System.out.printf("%s. %s (%s)\n", idItem, accion.nombreItemMenu(), accion.descripcionItemMenu());
@@ -154,7 +154,7 @@ public class MyFramework {
 		}
 
 		@Override
-		String getInputParaMenu() {
+		public String getInputParaMenu() {
 			System.out.print("Ingrese su opción: ");
 			String linea = "";
 			linea = scanner.nextLine();
