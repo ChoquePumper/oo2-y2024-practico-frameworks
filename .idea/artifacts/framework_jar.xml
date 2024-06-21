@@ -4,6 +4,7 @@
     <root id="archive" name="framework.jar">
       <element id="module-output" name="framework" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/googlecode/lanterna/lanterna/3.1.2/lanterna-3.1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20240303/json-20240303.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

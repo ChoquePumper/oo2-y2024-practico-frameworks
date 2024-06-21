@@ -1,5 +1,6 @@
 package choque.framework;
 
+import choque.framework.configparsers.JSONParser;
 import choque.framework.configparsers.PropertiesParser;
 import choque.framework.ui.LanternaMenuAcciones;
 
@@ -63,6 +64,9 @@ public class MyFramework {
 
 	private ConfigParser obtenerConfigParser() {
 		// TODO: agregar lógica para determinar que otro parser usar.
+
+		if (archivoConfiguracion.getName().endsWith(".json"))
+			return new JSONParser();
 
 		// Valor por defecto: PropertiesParser
 		return new PropertiesParser();
