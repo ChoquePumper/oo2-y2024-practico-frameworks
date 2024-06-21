@@ -18,8 +18,6 @@ public class MyFramework {
 	private boolean salirDelPrograma;
 	private Accion accionSalir;
 
-	private Scanner scanner;
-
 	public MyFramework() {
 		this(defaultRutaArchivoPropiedades);
 	}
@@ -51,8 +49,6 @@ public class MyFramework {
 				return "Salir del programa";
 			}
 		};
-
-		this.scanner = new Scanner(System.in);
 
 		procesarConfiguracion();
 		prepararListaDeAcciones();
@@ -86,7 +82,7 @@ public class MyFramework {
 	}
 
 	private void prepararListaDeAcciones() {
-		this.menuAcciones = new MenuAccionesCLI(this.scanner);
+		this.menuAcciones = new MenuAccionesCLI();
 		// Usar números como identificadores
 		int i = 1;
 		for (String nombreclase : nombreclase_acciones) {
@@ -128,8 +124,6 @@ public class MyFramework {
 	}
 
 	private void mostrarMenu() {
-		System.out.println();
-		System.out.println("Bienvenido, estas son sus opciones:\n");
 		this.menuAcciones.mostrarMenu();
 	}
 
@@ -142,12 +136,18 @@ public class MyFramework {
 
 		private final Scanner scanner;
 
+		MenuAccionesCLI() {
+			this(new Scanner(System.in));
+		}
+
 		MenuAccionesCLI(Scanner scanner) {
-			this.scanner = scanner;
+			this.scanner = Objects.requireNonNull(scanner);
 		}
 
 		@Override
 		public void mostrarMenu(List<String> items) {
+			System.out.println();
+			System.out.println("Bienvenido, estas son sus opciones:\n");
 			for (String idItem : items) {
 				Accion accion = getItem(idItem).orElseThrow();
 				System.out.printf("%s. %s (%s)\n", idItem, accion.nombreItemMenu(), accion.descripcionItemMenu());
