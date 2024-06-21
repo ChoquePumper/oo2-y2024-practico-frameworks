@@ -1,11 +1,9 @@
 package choque.framework;
 
+import choque.framework.configparsers.PropertiesParser;
 import choque.framework.ui.LanternaMenuAcciones;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Supplier;
@@ -14,8 +12,9 @@ public class MyFramework {
 	public static final String defaultRutaArchivoPropiedades = "config.properties";
 	private static final String propname_acciones = "acciones";
 	private static final String propname_menu = "menu";
+	private static final Map<String, Object> defaultProps = Map.of(propname_menu, "lanterna");
 	private final File archivoConfiguracion;
-	private final Map<String, Object> props = new HashMap<>();
+	private final Map<String, Object> props = new HashMap<>(defaultProps);
 
 	private final Map.Entry<String, Supplier<MenuAcciones>>[] menusDisponibles = new Map.Entry[]{
 			Map.entry("cli", (Supplier<MenuAcciones>) MenuAccionesCLI::new),
@@ -62,32 +61,30 @@ public class MyFramework {
 		prepararListaDeAcciones();
 	}
 
+	private ConfigParser obtenerConfigParser() {
+		// TODO: agregar lógica para determinar que otro parser usar.
+
+		// Valor por defecto: PropertiesParser
+		return new PropertiesParser();
+	}
+
 	private void procesarConfiguracion() {
-		// Abrir y leer el archivo de configuración
-		Properties config = new Properties();
-		try (var f_reader = new FileReader(archivoConfiguracion)) {
-			config.load(f_reader);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("No se encontró el archivo de configuración: " + archivoConfiguracion.getName());
-		} catch (IOException e) {
-			throw new RuntimeException("Error al leer el archivo del configuración.", e);
+		// Obtener un parser y procesar el archivo de configuración
+		var parser = obtenerConfigParser();
+		parser.procesarConfiguracion(archivoConfiguracion, props);
+
+		// Acciones: si el valor es un String, intentar pasarlo a una lista de Strings
+		if (props.get(propname_acciones) instanceof String valor)
+			props.put(propname_acciones, parser.valorALista(valor));
+
+		// Chequeo del tipo de algunos valores.
+		try {
+			Object o;
+			o = (List<String>) props.get(propname_acciones);
+			o = props.computeIfPresent(propname_menu, (k, v) -> (String) v);
+		} catch (ClassCastException e) {
+			throw new RuntimeException("Tipo de valor en la configuración inválido", e);
 		}
-
-		// Leer la propiedad de acciones
-		String prop_acciones = config.getProperty(propname_acciones);
-		if (Objects.isNull(prop_acciones))
-			throw new RuntimeException("Falta la propiedad '" + propname_acciones + "'");
-
-		// Guardar los nombres
-		this.props.put(propname_acciones, Arrays.stream(prop_acciones.split(";"))
-				.map(String::trim)
-				.peek(nombreClase -> {
-					if (nombreClase.isEmpty())
-						throw new RuntimeException("Error al parsear la propiedad '" + propname_acciones + "'");
-				}).toList());
-
-		// menu
-		this.props.put(propname_menu, config.getProperty(propname_menu, "lanterna"));
 	}
 
 	private MenuAcciones obtenerMenuAcciones() {
