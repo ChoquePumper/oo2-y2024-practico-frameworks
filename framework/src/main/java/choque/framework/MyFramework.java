@@ -1,24 +1,30 @@
 package choque.framework;
 
+import choque.framework.ui.LanternaMenuAcciones;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class MyFramework {
 	public static final String defaultRutaArchivoPropiedades = "config.properties";
 	private static final String propname_acciones = "acciones";
+	private static final String propname_menu = "menu";
 	private final File archivoConfiguracion;
+	private final Map<String, Object> props = new HashMap<>();
 
-	private List<String> nombreclase_acciones;
+	private final Map.Entry<String, Supplier<MenuAcciones>>[] menusDisponibles = new Map.Entry[]{
+			Map.entry("cli", (Supplier<MenuAcciones>) MenuAccionesCLI::new),
+			Map.entry("lanterna", (Supplier<MenuAcciones>) LanternaMenuAcciones::new),
+	};
 
 	private MenuAcciones menuAcciones;
 	private boolean salirDelPrograma;
 	private Accion accionSalir;
-
-	private Scanner scanner;
 
 	public MyFramework() {
 		this(defaultRutaArchivoPropiedades);
@@ -52,8 +58,6 @@ public class MyFramework {
 			}
 		};
 
-		this.scanner = new Scanner(System.in);
-
 		procesarConfiguracion();
 		prepararListaDeAcciones();
 	}
@@ -75,21 +79,33 @@ public class MyFramework {
 			throw new RuntimeException("Falta la propiedad '" + propname_acciones + "'");
 
 		// Guardar los nombres
-		this.nombreclase_acciones = new ArrayList<>();
-		Arrays.stream(prop_acciones.split(";"))
+		this.props.put(propname_acciones, Arrays.stream(prop_acciones.split(";"))
 				.map(String::trim)
 				.peek(nombreClase -> {
 					if (nombreClase.isEmpty())
 						throw new RuntimeException("Error al parsear la propiedad '" + propname_acciones + "'");
-				}).forEach(nombreClase -> nombreclase_acciones.add(nombreClase));
+				}).toList());
 
+		// menu
+		this.props.put(propname_menu, config.getProperty(propname_menu, "lanterna"));
+	}
+
+	private MenuAcciones obtenerMenuAcciones() {
+		String menu = (String) props.get(propname_menu);
+		var supplier = Map.ofEntries(menusDisponibles).get(menu);
+		if (supplier == null)
+			throw new RuntimeException("Menú no disponible: '" + menu + "'");
+		return supplier.get();
 	}
 
 	private void prepararListaDeAcciones() {
-		this.menuAcciones = new MenuAccionesCLI(this.scanner);
+		// Crea el menú según lo especificado en las propiedades
+		this.menuAcciones = obtenerMenuAcciones();
+
 		// Usar números como identificadores
 		int i = 1;
-		for (String nombreclase : nombreclase_acciones) {
+		//noinspection unchecked
+		for (String nombreclase : (List<String>) this.props.get(propname_acciones)) {
 			this.menuAcciones.agregarItem(Integer.toString(i), ((Accion) instanciarClase(nombreclase)));
 			i++;
 		}
@@ -120,6 +136,7 @@ public class MyFramework {
 				System.out.println(e.getMessage());
 			}
 		}
+		this.menuAcciones.cerrar();
 	}
 
 	private boolean debeSalirDelPrograma() {
@@ -127,8 +144,6 @@ public class MyFramework {
 	}
 
 	private void mostrarMenu() {
-		System.out.println();
-		System.out.println("Bienvenido, estas son sus opciones:\n");
 		this.menuAcciones.mostrarMenu();
 	}
 
@@ -141,12 +156,18 @@ public class MyFramework {
 
 		private final Scanner scanner;
 
+		MenuAccionesCLI() {
+			this(new Scanner(System.in));
+		}
+
 		MenuAccionesCLI(Scanner scanner) {
-			this.scanner = scanner;
+			this.scanner = Objects.requireNonNull(scanner);
 		}
 
 		@Override
-		void mostrarMenu(List<String> items) {
+		public void mostrarMenu(List<String> items) {
+			System.out.println();
+			System.out.println("Bienvenido, estas son sus opciones:\n");
 			for (String idItem : items) {
 				Accion accion = getItem(idItem).orElseThrow();
 				System.out.printf("%s. %s (%s)\n", idItem, accion.nombreItemMenu(), accion.descripcionItemMenu());
@@ -154,7 +175,7 @@ public class MyFramework {
 		}
 
 		@Override
-		String getInputParaMenu() {
+		public String getInputParaMenu() {
 			System.out.print("Ingrese su opción: ");
 			String linea = "";
 			linea = scanner.nextLine();

@@ -2,13 +2,13 @@ package choque.framework;
 
 import java.util.*;
 
-abstract class MenuAcciones {
+public abstract class MenuAcciones {
 
 	// Colección de los items del menú.
 	private final Map<String, Accion> items;
 	private final List<String> ordenIDs;
 
-	MenuAcciones() {
+	public MenuAcciones() {
 		this.items = new HashMap<>();
 		this.ordenIDs = new ArrayList<>();
 	}
@@ -34,7 +34,7 @@ abstract class MenuAcciones {
 		return Arrays.stream(objChars).allMatch(Character::isLetterOrDigit);
 	}
 
-	Optional<Accion> getItem(String id) {
+	public Optional<Accion> getItem(String id) {
 		return Optional.ofNullable(items.get(id));
 	}
 
@@ -53,7 +53,7 @@ abstract class MenuAcciones {
 		ordenIDs.addAll(resto);
 	}
 
-	abstract void mostrarMenu(List<String> items);
+	public abstract void mostrarMenu(List<String> items);
 
 	void mostrarMenu() {
 		mostrarMenu(verOrdenItems());
@@ -71,5 +71,11 @@ abstract class MenuAcciones {
 				.orElseThrow(() -> new OpcionInvalidaException((Object) id));
 	}
 
-	abstract String getInputParaMenu();
+	public abstract String getInputParaMenu();
+
+	/**
+	 * Sobreescribible.
+	 */
+	public void cerrar() {
+	}
 }
