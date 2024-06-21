@@ -120,6 +120,7 @@ public class MyFramework {
 				System.out.println(e.getMessage());
 			}
 		}
+		this.menuAcciones.cerrar();
 	}
 
 	private boolean debeSalirDelPrograma() {

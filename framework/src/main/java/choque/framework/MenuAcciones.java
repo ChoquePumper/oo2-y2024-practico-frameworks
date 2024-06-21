@@ -72,4 +72,10 @@ public abstract class MenuAcciones {
 	}
 
 	public abstract String getInputParaMenu();
+
+	/**
+	 * Sobreescribible.
+	 */
+	public void cerrar() {
+	}
 }
