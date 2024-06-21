@@ -1,5 +1,7 @@
 package choque.framework;
 
+import choque.framework.ui.LanternaMenuAcciones;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -17,6 +19,7 @@ public class MyFramework {
 
 	private final Map.Entry<String, Supplier<MenuAcciones>>[] menusDisponibles = new Map.Entry[]{
 			Map.entry("cli", (Supplier<MenuAcciones>) MenuAccionesCLI::new),
+			Map.entry("lanterna", (Supplier<MenuAcciones>) LanternaMenuAcciones::new),
 	};
 
 	private MenuAcciones menuAcciones;
@@ -84,7 +87,7 @@ public class MyFramework {
 				}).toList());
 
 		// menu
-		this.props.put(propname_menu, config.getProperty(propname_menu, "cli"));
+		this.props.put(propname_menu, config.getProperty(propname_menu, "lanterna"));
 	}
 
 	private MenuAcciones obtenerMenuAcciones() {
