@@ -6,13 +6,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class MyFramework {
 	public static final String defaultRutaArchivoPropiedades = "config.properties";
 	private static final String propname_acciones = "acciones";
+	private static final String propname_menu = "menu";
 	private final File archivoConfiguracion;
+	private final Map<String, Object> props = new HashMap<>();
 
-	private List<String> nombreclase_acciones;
+	private final Map.Entry<String, Supplier<MenuAcciones>>[] menusDisponibles = new Map.Entry[]{
+			Map.entry("cli", (Supplier<MenuAcciones>) MenuAccionesCLI::new),
+	};
 
 	private MenuAcciones menuAcciones;
 	private boolean salirDelPrograma;
@@ -71,21 +76,33 @@ public class MyFramework {
 			throw new RuntimeException("Falta la propiedad '" + propname_acciones + "'");
 
 		// Guardar los nombres
-		this.nombreclase_acciones = new ArrayList<>();
-		Arrays.stream(prop_acciones.split(";"))
+		this.props.put(propname_acciones, Arrays.stream(prop_acciones.split(";"))
 				.map(String::trim)
 				.peek(nombreClase -> {
 					if (nombreClase.isEmpty())
 						throw new RuntimeException("Error al parsear la propiedad '" + propname_acciones + "'");
-				}).forEach(nombreClase -> nombreclase_acciones.add(nombreClase));
+				}).toList());
 
+		// menu
+		this.props.put(propname_menu, config.getProperty(propname_menu, "cli"));
+	}
+
+	private MenuAcciones obtenerMenuAcciones() {
+		String menu = (String) props.get(propname_menu);
+		var supplier = Map.ofEntries(menusDisponibles).get(menu);
+		if (supplier == null)
+			throw new RuntimeException("Menú no disponible: '" + menu + "'");
+		return supplier.get();
 	}
 
 	private void prepararListaDeAcciones() {
-		this.menuAcciones = new MenuAccionesCLI();
+		// Crea el menú según lo especificado en las propiedades
+		this.menuAcciones = obtenerMenuAcciones();
+
 		// Usar números como identificadores
 		int i = 1;
-		for (String nombreclase : nombreclase_acciones) {
+		//noinspection unchecked
+		for (String nombreclase : (List<String>) this.props.get(propname_acciones)) {
 			this.menuAcciones.agregarItem(Integer.toString(i), ((Accion) instanciarClase(nombreclase)));
 			i++;
 		}
