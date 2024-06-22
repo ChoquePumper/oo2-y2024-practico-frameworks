@@ -147,11 +147,18 @@ public class MyFramework {
 			try {
 				acciones = elegirDelMenu();
 				// Generar una lista de Callable(s) para que lo use ExecutorService
-				executorService.invokeAll(acciones.stream().map(this::generarCallable).toList());
+				// En caso de que se haya seleccionado a accionSalir, ejecutar inmediatamente.
+				boolean contieneLaAccionSalir = acciones.contains(accionSalir);
+				if (contieneLaAccionSalir)
+					acciones = acciones.stream().dropWhile(accion -> accion == accionSalir).toList();
+				for (Accion a : acciones) {
+					executorService.submit(generarCallable(a));
+				}
+				if (contieneLaAccionSalir)
+					accionSalir.ejecutar();
+
 			} catch (OpcionInvalidaException e) {
 				System.out.println(e.getMessage());
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
 			}
 		}
 		executorService.shutdown();
