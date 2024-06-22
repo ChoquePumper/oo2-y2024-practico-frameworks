@@ -3,6 +3,7 @@ package choque.framework;
 import choque.framework.configparsers.JSONParser;
 import choque.framework.configparsers.PropertiesParser;
 import choque.framework.ui.LanternaMenuAcciones;
+import choque.framework.ui.LanternaMultiMenuAcciones;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +24,8 @@ public class MyFramework {
 
 	private final Map.Entry<String, Supplier<MenuAcciones>>[] menusDisponibles = new Map.Entry[]{
 			Map.entry("cli", (Supplier<MenuAcciones>) MenuAccionesCLI::new),
-			Map.entry("lanterna", (Supplier<MenuAcciones>) LanternaMenuAcciones::new),
+			Map.entry("lanterna-legacy", (Supplier<MenuAcciones>) LanternaMenuAcciones::new),
+			Map.entry("lanterna", (Supplier<MenuAcciones>) LanternaMultiMenuAcciones::new),
 	};
 
 	private MenuAcciones menuAcciones;
