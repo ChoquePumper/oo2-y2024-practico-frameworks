@@ -7,13 +7,17 @@ import choque.framework.ui.LanternaMenuAcciones;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 public class MyFramework {
 	public static final String defaultRutaArchivoPropiedades = "config.properties";
 	private static final String propname_acciones = "acciones";
 	private static final String propname_menu = "menu";
-	private static final Map<String, Object> defaultProps = Map.of(propname_menu, "lanterna");
+	private static final String propname_maxThreads = "max-threads";
+	private static final Map<String, Object> defaultProps =
+			Map.of(propname_menu, "lanterna", propname_maxThreads, 1);
 	private final File archivoConfiguracion;
 	private final Map<String, Object> props = new HashMap<>(defaultProps);
 
@@ -81,11 +85,16 @@ public class MyFramework {
 		if (props.get(propname_acciones) instanceof String valor)
 			props.put(propname_acciones, parser.valorALista(valor));
 
+		// max-threads: debe ser Integer
+		if (props.get(propname_maxThreads) instanceof String valor)
+			props.put(propname_maxThreads, Integer.parseInt(valor));
+
 		// Chequeo del tipo de algunos valores.
 		try {
 			Object o;
 			o = (List<String>) props.get(propname_acciones);
 			o = props.computeIfPresent(propname_menu, (k, v) -> (String) v);
+			o = props.computeIfPresent(propname_maxThreads, (k, v) -> (Integer) v);
 		} catch (ClassCastException e) {
 			throw new RuntimeException("Tipo de valor en la configuración inválido", e);
 		}
@@ -129,15 +138,29 @@ public class MyFramework {
 	 * Ejecuta el framework.
 	 */
 	public void ejecutar() {
+		var executorService = Executors.newFixedThreadPool((Integer) props.get(propname_maxThreads));
 		while (!debeSalirDelPrograma()) {
 			mostrarMenu();
+			List<Accion> acciones;
 			try {
-				elegirDelMenu().ejecutar();
+				acciones = elegirDelMenu();
+				// Generar una lista de Callable(s) para que lo use ExecutorService
+				executorService.invokeAll(acciones.stream().map(this::generarCallable).toList());
 			} catch (OpcionInvalidaException e) {
 				System.out.println(e.getMessage());
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 		}
+		executorService.shutdown();
 		this.menuAcciones.cerrar();
+	}
+
+	private Callable<Void> generarCallable(Accion accion) {
+		return () -> {
+			accion.ejecutar();
+			return null;
+		};
 	}
 
 	private boolean debeSalirDelPrograma() {
@@ -148,7 +171,7 @@ public class MyFramework {
 		this.menuAcciones.mostrarMenu();
 	}
 
-	private Accion elegirDelMenu() throws OpcionInvalidaException {
+	private List<Accion> elegirDelMenu() throws OpcionInvalidaException {
 		return this.menuAcciones.elegirDelMenu(false);
 	}
 
