@@ -209,7 +209,7 @@ public class MyFramework {
 
 		@Override
 		public String getInputParaMenu() {
-			System.out.print("Ingrese su opción: ");
+			System.out.print("Ingrese una o más opciones separadas por comas: ");
 			String linea = "";
 			linea = scanner.nextLine();
 			return linea;
