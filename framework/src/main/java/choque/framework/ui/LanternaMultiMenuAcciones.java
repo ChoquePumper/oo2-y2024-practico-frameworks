@@ -75,8 +75,6 @@ public class LanternaMultiMenuAcciones extends MenuAcciones {
 		}
 	}
 
-	;
-
 	private static class MenuAccionesDialog extends DialogWindow {
 
 		private CheckBoxList<ItemAccion> cbList;
