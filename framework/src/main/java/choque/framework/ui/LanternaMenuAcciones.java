@@ -46,7 +46,8 @@ public class LanternaMenuAcciones extends MenuAcciones {
 		// Agregar acciones
 		items.forEach((idItem) -> {
 			Accion accion = getItem(idItem).orElseThrow();
-			builder.addAction(accion.descripcionItemMenu(), () -> {
+			String label = accion.nombreItemMenu() + ": " + accion.descripcionItemMenu();
+			builder.addAction(label, () -> {
 				opcionSeleccionada = idItem;
 			});
 		});
