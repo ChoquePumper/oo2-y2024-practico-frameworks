@@ -94,6 +94,8 @@ public class LanternaMultiMenuAcciones extends MenuAcciones {
 			panel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
 			panel.addComponent(new Label("Seleccione una o más acciones de la lista:"));
 
+			panel.addComponent(new EmptySpace());
+
 			// Agregar los items
 			cbList = new CheckBoxList<ItemAccion>();
 			items.forEach(cbList::addItem);
