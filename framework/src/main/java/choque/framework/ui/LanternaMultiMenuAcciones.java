@@ -2,6 +2,7 @@ package choque.framework.ui;
 
 import choque.framework.Accion;
 import choque.framework.MenuAcciones;
+import choque.framework.MenuCerradoException;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.DialogWindow;
 import com.googlecode.lanterna.screen.Screen;
@@ -16,7 +17,7 @@ import java.util.Objects;
 public class LanternaMultiMenuAcciones extends MenuAcciones {
 
 	private final WindowBasedTextGUI textGUI;
-	private String seleccionado = "";
+	private String seleccionado;
 	private MenuAccionesDialog dialog;
 
 	public LanternaMultiMenuAcciones() {
@@ -43,14 +44,21 @@ public class LanternaMultiMenuAcciones extends MenuAcciones {
 					return new ItemAccion(idItem, accion.nombreItemMenu(), accion.descripcionItemMenu());
 				})
 				.toList();
+		seleccionado = null;
 
 		dialog = new MenuAccionesDialog("Menu de acciones", itemAccionList);
-		seleccionado = String.join(",", (List<String>) dialog
-				.showDialog(textGUI));
+		List<String> elements = (List<String>) dialog.showDialog(textGUI);
+		if (elements != null)
+			seleccionado = String.join(",", elements);
 	}
 
 	@Override
-	public String getInputParaMenu() {
+	public String getInputParaMenu() throws MenuCerradoException {
+		// No es la mejor forma. Limitaciones de la API de Lanterna.
+		// Cuando el emulador de terminal (Swing) se cierra, también se cierra
+		// el Dialog y devuelve null. Entonces con eso puedo determinar que se
+		// ha cerrado por otro medio y considerarlo como cerrado con [x].
+		if (seleccionado == null) throw new MenuCerradoException();
 		return seleccionado;
 	}
 
