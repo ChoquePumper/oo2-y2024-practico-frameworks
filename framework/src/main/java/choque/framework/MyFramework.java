@@ -18,7 +18,7 @@ public class MyFramework {
 	private static final String propname_menu = "menu";
 	private static final String propname_maxThreads = "max-threads";
 	private static final Map<String, Object> defaultProps =
-			Map.of(propname_menu, "lanterna", propname_maxThreads, 1);
+			Map.of(propname_menu, "lanterna", propname_maxThreads, 2);
 	private final File archivoConfiguracion;
 	private final Map<String, Object> props = new HashMap<>(defaultProps);
 
