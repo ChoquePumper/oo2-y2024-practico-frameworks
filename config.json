@@ -1,6 +1,8 @@
 {
   "acciones": [
-    "choque.utilizacion.AccionDos",
-    "choque.utilizacion.AccionUno"
-  ]
+    "choque.utilizacion.AccionUno",
+    "choque.utilizacion.AccionDos"
+  ],
+  "menu": "lanterna-legacy",
+  "max-threads": 2
 }
