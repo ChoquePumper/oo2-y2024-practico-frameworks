@@ -147,10 +147,10 @@ public class MyFramework {
 			try {
 				acciones = elegirDelMenu();
 				// Generar una lista de Callable(s) para que lo use ExecutorService
-				// En caso de que se haya seleccionado a accionSalir, ejecutar inmediatamente.
+				// En caso de que se haya seleccionado a accionSalir, ejecutar en el hilo principal.
 				boolean contieneLaAccionSalir = acciones.contains(accionSalir);
 				if (contieneLaAccionSalir)
-					acciones = acciones.stream().dropWhile(accion -> accion == accionSalir).toList();
+					acciones = acciones.stream().filter(accion -> !accionSalir.equals(accion)).toList();
 				for (Accion a : acciones) {
 					executorService.submit(generarCallable(a));
 				}
