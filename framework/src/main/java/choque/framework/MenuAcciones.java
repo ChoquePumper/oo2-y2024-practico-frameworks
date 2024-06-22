@@ -64,7 +64,7 @@ public abstract class MenuAcciones {
 		mostrarMenu(verOrdenItems());
 	}
 
-	public List<Accion> elegirDelMenu(boolean mostrarMenu) throws OpcionInvalidaException {
+	public List<Accion> elegirDelMenu(boolean mostrarMenu) throws OpcionInvalidaException, MenuCerradoException {
 		if (mostrarMenu) this.mostrarMenu();
 		String input = getInputParaMenu();
 
@@ -81,7 +81,7 @@ public abstract class MenuAcciones {
 		return acciones.stream().dropWhile(Objects::isNull).toList();
 	}
 
-	public abstract String getInputParaMenu();
+	public abstract String getInputParaMenu() throws MenuCerradoException;
 
 	/**
 	 * Sobreescribible.

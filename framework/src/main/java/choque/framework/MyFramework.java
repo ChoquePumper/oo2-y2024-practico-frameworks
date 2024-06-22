@@ -159,6 +159,10 @@ public class MyFramework {
 
 			} catch (OpcionInvalidaException e) {
 				System.out.println(e.getMessage());
+			} catch (MenuCerradoException e) {
+				// Si el menú no está abierto o se cerró, salir del programa.
+				System.out.println("El menú está cerrado.");
+				accionSalir.ejecutar();
 			}
 		}
 		executorService.shutdown();
@@ -180,7 +184,7 @@ public class MyFramework {
 		this.menuAcciones.mostrarMenu();
 	}
 
-	private List<Accion> elegirDelMenu() throws OpcionInvalidaException {
+	private List<Accion> elegirDelMenu() throws OpcionInvalidaException, MenuCerradoException {
 		return this.menuAcciones.elegirDelMenu(false);
 	}
 
