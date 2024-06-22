@@ -2,6 +2,7 @@ package choque.framework.ui;
 
 import choque.framework.Accion;
 import choque.framework.MenuAcciones;
+import choque.framework.MenuCerradoException;
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import com.googlecode.lanterna.gui2.dialogs.ActionListDialogBuilder;
@@ -16,7 +17,7 @@ import java.util.List;
 public class LanternaMenuAcciones extends MenuAcciones {
 	final WindowBasedTextGUI textGUI;
 
-	private String opcionSeleccionada = "";
+	private String opcionSeleccionada;
 
 	public LanternaMenuAcciones() {
 		// Setup terminal and screen layers
@@ -40,11 +41,13 @@ public class LanternaMenuAcciones extends MenuAcciones {
 				.setTitle("Menú de acciones")
 				.setDescription("Seleccione una acción")
 				.setCanCancel(false);
+		opcionSeleccionada = null;
 
 		// Agregar acciones
 		items.forEach((idItem) -> {
 			Accion accion = getItem(idItem).orElseThrow();
-			builder.addAction(accion.descripcionItemMenu(), () -> {
+			String label = accion.nombreItemMenu() + ": " + accion.descripcionItemMenu();
+			builder.addAction(label, () -> {
 				opcionSeleccionada = idItem;
 			});
 		});
@@ -53,7 +56,8 @@ public class LanternaMenuAcciones extends MenuAcciones {
 	}
 
 	@Override
-	public String getInputParaMenu() {
+	public String getInputParaMenu() throws MenuCerradoException {
+		if (opcionSeleccionada == null) throw new MenuCerradoException();
 		return opcionSeleccionada;
 	}
 

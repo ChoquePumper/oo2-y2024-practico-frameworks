@@ -1,6 +1,7 @@
 package choque.framework;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public abstract class MenuAcciones {
 
@@ -38,6 +39,10 @@ public abstract class MenuAcciones {
 		return Optional.ofNullable(items.get(id));
 	}
 
+	public List<Accion> getItems(String... ids) {
+		return Arrays.stream(ids).map(items::get).toList();
+	}
+
 	List<String> verOrdenItems() {
 		return List.copyOf(ordenIDs);
 	}
@@ -59,19 +64,24 @@ public abstract class MenuAcciones {
 		mostrarMenu(verOrdenItems());
 	}
 
-	public Accion elegirDelMenu(boolean mostrarMenu) throws OpcionInvalidaException {
+	public List<Accion> elegirDelMenu(boolean mostrarMenu) throws OpcionInvalidaException, MenuCerradoException {
 		if (mostrarMenu) this.mostrarMenu();
 		String input = getInputParaMenu();
 
 		// Parsing del input
-		String id = input.trim();
-		if (!validarId(id))
-			throw new OpcionInvalidaException("Id inválido");
-		return this.getItem(id)
-				.orElseThrow(() -> new OpcionInvalidaException((Object) id));
+		List<String> ids = Arrays.stream(input.split(",")).map(String::trim).toList();
+		List<Accion> acciones = this.getItems(ids.toArray(String[]::new));
+
+		// Lanzar excepción si falta alguna Accion
+		List<String> faltantes = IntStream.range(0, ids.size()).filter(i -> acciones.get(i) == null)
+				.mapToObj(ids::get).toList();
+		if (!faltantes.isEmpty())
+			throw new OpcionInvalidaException("Opciones inválidas: " + String.join(",", faltantes));
+
+		return acciones.stream().dropWhile(Objects::isNull).toList();
 	}
 
-	public abstract String getInputParaMenu();
+	public abstract String getInputParaMenu() throws MenuCerradoException;
 
 	/**
 	 * Sobreescribible.
